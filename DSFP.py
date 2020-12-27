@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import matthews_corrcoef
 
 
 
@@ -58,11 +59,27 @@ rf.fit(train_features, train_labels);
 
 # Use the forest's predict method on the test data
 predictions = rf.predict(test_features)
+
+round_pred = []
+for n in predictions:
+	x = round(n)
+	round_pred.append(x)
+
 # Calculate the absolute errors
 errors = abs(predictions - test_labels)
 # Print out the mean absolute error (mae)
 print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 print('Errors:', errors)
+
+#MCC Evaluation
+print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
+
+# print('trainn labelflelll',train_labels)
+# print('train frseafhru',train_features)
+# print('testt labelflelll',test_labels)
+# print('testttt frseafhru',test_features)
+# print('preddddddddd', predictions)
+print('rounddddd', round_pred)
 
 
 
