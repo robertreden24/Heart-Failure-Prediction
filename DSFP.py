@@ -5,13 +5,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import matthews_corrcoef
 
-
-
 df = pd.read_csv('hfdataset.csv')
+#drop the time column as it is not used
 df = df.drop('time', 1)
-
-# df1 = df['platelets']
-# df2 = df['serum_creatinine']
 
 def corr_matrix(df):
 	f = plt.figure(figsize=(12, 7))
@@ -28,15 +24,9 @@ def corr_matrix(df):
 
 # Labels are the values we want to predict
 labels = np.array(df['DEATH_EVENT'])
-
-# Remove the labels from the features
-# axis 1 refers to the columns
 df= df.drop('DEATH_EVENT', axis = 1)
-# Saving feature names for later use
 column_list = list(df.columns)
-# Convert to numpy array
 df = np.array(df)
-
 
 train_features, test_features, train_labels, test_labels = train_test_split(df, labels, test_size = 0.2, random_state = 42)
 
@@ -45,41 +35,60 @@ print('Training Labels Shape:', train_labels.shape)
 print('Testing Features Shape:', test_features.shape)
 print('Testing Labels Shape:', test_labels.shape)
 
-# The baseline predictions are the historical averages
 baseline_preds = test_features[:, column_list.index('serum_creatinine')]
-
 # Baseline errors, and display average baseline error
 baseline_errors = abs(baseline_preds - test_labels)
-print('Average baseline error: ', round(np.mean(baseline_errors), 2))
+print('Average baseline error: ', round(np.mean(baseline_errors), 2), "degrees.")
 
-# Instantiate model with 1000 decision trees
-rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
-# Train the model on training data
-rf.fit(train_features, train_labels);
+# # Instantiate model with 1000 decision trees
+# rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
+# # Train the model on training data
+# rf.fit(train_features, train_labels);
 
-# Use the forest's predict method on the test data
-predictions = rf.predict(test_features)
+# # Use the forest's predict method on the test data
+# predictions = rf.predict(test_features)
+# #round up or down the prediction to nearest integer
+# round_pred = []
+# for n in predictions:
+# 	x = round(n)
+# 	round_pred.append(x)
+# # Calculate the absolute errors
+# errors = abs(predictions - test_labels)
+# # Print out the mean absolute error (mae)
+# print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
+# #MCC Evaluation
+# print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
+
+# # Get numerical feature importances
+# importances = list(rf.feature_importances_)
+# # List of tuples with variable and importance
+# feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(column_list, importances)]
+# # Sort the feature importances by most important first
+# feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+# # Print out the feature and importances 
+# [print('Variable: {:25} Importance: {}'.format(*pair)) for pair in feature_importances];
+
+
+# New random forest using only the two most important variables
+rf_most_important = RandomForestRegressor(n_estimators= 1000, random_state=42)
+# Extract the two most important features
+important_indices = [column_list.index('serum_creatinine'), column_list.index('ejection_fraction')]
+train_important = train_features[:, important_indices]
+test_important = test_features[:, important_indices]
+# Train the random forest
+rf_most_important.fit(train_important, train_labels)
+# Make predictions and determine the error
+predictions = rf_most_important.predict(test_important)
+errors = abs(predictions - test_labels)
+
+# Display the performance metrics
+print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+
+# round up or down the prediction to nearest integer
 round_pred = []
 for n in predictions:
 	x = round(n)
 	round_pred.append(x)
 
-# Calculate the absolute errors
-errors = abs(predictions - test_labels)
-# Print out the mean absolute error (mae)
-print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
-print('Errors:', errors)
-
-#MCC Evaluation
 print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
-
-# print('trainn labelflelll',train_labels)
-# print('train frseafhru',train_features)
-# print('testt labelflelll',test_labels)
-# print('testttt frseafhru',test_features)
-# print('preddddddddd', predictions)
-print('rounddddd', round_pred)
-
-
-
