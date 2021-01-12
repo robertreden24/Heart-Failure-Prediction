@@ -9,6 +9,7 @@ df = pd.read_csv('hfdataset.csv')
 #drop the time column as it is not used
 df = df.drop('time', 1)
 
+# plot correlation matrix 
 def corr_matrix(df):
 	f = plt.figure(figsize=(12, 7))
 	plt.matshow(df.corr(), fignum=f.number)
@@ -22,6 +23,16 @@ def corr_matrix(df):
 # corr_matrix(df)
 # print(df.describe())
 
+# plot serum_creatinine and ejection_fraction correlation
+def plot(df):
+	fig, ax = plt.subplots() # Create the figure and axes object
+	plt.plot(df.ejection_fraction, df.serum_creatinine, 'o',color="blue")
+	plt.xlabel("ejection_fraction")
+	plt.ylabel("serum_creatinine")
+	plt.title("serum_creatinine and ejection_fraction")
+	plt.show()
+# plot(df)
+
 # Labels are the values we want to predict
 labels = np.array(df['DEATH_EVENT'])
 df= df.drop('DEATH_EVENT', axis = 1)
@@ -30,17 +41,17 @@ df = np.array(df)
 
 train_features, test_features, train_labels, test_labels = train_test_split(df, labels, test_size = 0.2, random_state = 42)
 
-print('Training Features Shape:', train_features.shape)
-print('Training Labels Shape:', train_labels.shape)
-print('Testing Features Shape:', test_features.shape)
-print('Testing Labels Shape:', test_labels.shape)
+# print('Training Features Shape:', train_features.shape)
+# print('Training Labels Shape:', train_labels.shape)
+# print('Testing Features Shape:', test_features.shape)
+# print('Testing Labels Shape:', test_labels.shape)
 
 baseline_preds = test_features[:, column_list.index('serum_creatinine')]
 # Baseline errors, and display average baseline error
 baseline_errors = abs(baseline_preds - test_labels)
-print('Average baseline error: ', round(np.mean(baseline_errors), 2), "degrees.")
+# print('Average baseline error: ', round(np.mean(baseline_errors), 2), "degrees.")
 
-# # Instantiate model with 1000 decision trees
+# Instantiate model with 1000 decision trees
 # rf = RandomForestRegressor(n_estimators = 1000, random_state = 42)
 # # Train the model on training data
 # rf.fit(train_features, train_labels);
@@ -52,15 +63,19 @@ print('Average baseline error: ', round(np.mean(baseline_errors), 2), "degrees."
 # for n in predictions:
 # 	x = round(n)
 # 	round_pred.append(x)
-# # Calculate the absolute errors
+# Calculate the absolute errors
 # errors = abs(predictions - test_labels)
-# # Print out the mean absolute error (mae)
+# Print out the mean absolute error (mae)
 # print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+
+
+# print('Errors:', errors)
 
 # #MCC Evaluation
 # print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
 
-# # Get numerical feature importances
+
+# Get numerical feature importances
 # importances = list(rf.feature_importances_)
 # # List of tuples with variable and importance
 # feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(column_list, importances)]
@@ -82,10 +97,10 @@ rf_most_important.fit(train_important, train_labels)
 predictions = rf_most_important.predict(test_important)
 errors = abs(predictions - test_labels)
 
-# Display the performance metrics
-print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+#Display the performance metrics
+#print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
-# round up or down the prediction to nearest integer
+#round up or down the prediction to nearest integer
 round_pred = []
 for n in predictions:
 	x = round(n)
@@ -95,3 +110,18 @@ print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
 print(confusion_matrix(test_labels, round_pred))
 print(classification_report(test_labels, round_pred))
 print("Accuracy: ", accuracy_score(test_labels, round_pred)) 
+
+
+# plot variable importance
+# list of x locations for plotting
+# x_values = list(range(len(importances)))
+# # Make a bar chart
+# plt.bar(x_values, importances, orientation = 'vertical')
+# # Tick labels for x axis
+# plt.xticks(x_values, column_list, rotation='vertical')
+# # Axis labels and title
+# plt.ylabel('Importance'); plt.xlabel('Variable'); plt.title('Variable Importances');
+# plt.tight_layout()
+
+# plt.show()
+
