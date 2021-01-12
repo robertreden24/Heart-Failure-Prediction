@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import matthews_corrcoef
+from sklearn.metrics import matthews_corrcoef, confusion_matrix, accuracy_score, classification_report
 
 df = pd.read_csv('hfdataset.csv')
 #drop the time column as it is not used
@@ -92,3 +92,6 @@ for n in predictions:
 	round_pred.append(x)
 
 print('MCC: ', matthews_corrcoef(test_labels, round_pred, sample_weight=None))
+print(confusion_matrix(test_labels, round_pred))
+print(classification_report(test_labels, round_pred))
+print("Accuracy: ", accuracy_score(test_labels, round_pred)) 
